@@ -1,0 +1,60 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite" // Change to "postgresql" for production
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  role          String    @default("USER") // "USER" or "ADMIN"
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // History Relationships
+  recentSeries   RecentSeries[]
+  recentEpisodes RecentEpisode[]
+}
+
+model Series {
+  id          String   @id // Watchit Series ID
+  name        String
+  description String?
+  posterUrl   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  recentByUsers RecentSeries[]
+}
+
+model RecentSeries {
+  id        String   @id @default(cuid())
+  userId    String
+  seriesId  String
+  viewedAt  DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  series Series @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, seriesId])
+}
+
+model RecentEpisode {
+  id            String   @id @default(cuid())
+  userId        String
+  episodeId     String   // Watchit Episode ID
+  assetId       String
+  name          String
+  viewedAt      DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, episodeId])
+}
