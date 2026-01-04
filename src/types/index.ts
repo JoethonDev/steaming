@@ -52,8 +52,6 @@ export interface Episode {
   series?: string; // Series name for convenience
 }
 
-export interface EpisodeResponse extends Episode {}
-
 export interface StreamResolveRequest {
   assetId: string;
 }
@@ -97,8 +95,8 @@ export interface UserHistoryResponse {
   recentSeries: Array<{
     id: string;
     name: string;
-    description?: string;
-    posterUrl?: string;
+    description?: string | null;
+    posterUrl?: string | null;
     viewedAt: Date;
   }>;
   recentEpisodes: Array<{
@@ -204,8 +202,8 @@ export interface Playlist {
 export interface CatalogSeries {
   id: string;
   name: string;
-  description?: string;
-  posterUrl?: string;
+  description?: string | null;
+  posterUrl?: string | null;
   createdAt: Date;
 }
 

@@ -281,7 +281,7 @@ export default function VideoPlayer({
       }
     } catch (error) {
       console.error("Playback error:", error);
-      setError(`Playback failed: ${error.message}`);
+      setError(`Playback failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }, []); // Remove dependency on isPlaying
 

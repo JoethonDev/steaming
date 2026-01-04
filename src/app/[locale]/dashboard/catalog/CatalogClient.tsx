@@ -55,8 +55,8 @@ export default function CatalogClient({ series, locale }: CatalogClientProps) {
                 <div className="aspect-[2/3] relative overflow-hidden">
                   {item.posterUrl ? (
                     <img
-                      src={getProxiedImageUrl(item.posterUrl)}
-                      alt={item.title}
+                      src={getProxiedImageUrl(item.posterUrl) || ''}
+                      alt={item.name}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
                   ) : (
@@ -76,17 +76,17 @@ export default function CatalogClient({ series, locale }: CatalogClientProps) {
                 {/* Content */}
                 <div className="p-6">
                   <h3 className="font-bold text-white mb-2 line-clamp-2 group-hover:text-indigo-300 transition-colors">
-                    {item.title}
+                    {item.name}
                   </h3>
                   
                   <div className="flex items-center gap-4 text-xs text-slate-500">
                     <div className="flex items-center gap-1">
                       <Calendar size={12} />
-                      {item.year || "N/A"}
+                      {new Date(item.createdAt).getFullYear() || "N/A"}
                     </div>
                     <div className="flex items-center gap-1">
                       <Play size={12} />
-                      {item._count?.episodes || 0} episodes
+                      Series
                     </div>
                   </div>
                 </div>

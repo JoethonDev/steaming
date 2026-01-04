@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
@@ -7,8 +8,10 @@ const nextConfig: NextConfig = {
   experimental: {
   },
 
-  // Turbopack configuration (empty to silence warning)
-  turbopack: {},
+  // Turbopack configuration
+  turbopack: {
+    root: path.resolve(__dirname), // Use absolute path to current directory
+  },
 
   // Security headers required for FFmpeg.wasm SharedArrayBuffer
   async headers() {

@@ -1,7 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
+**/node_modules**
 /.pnp
 .pnp.*
 .yarn/*
@@ -12,23 +12,37 @@
 
 # testing
 /coverage
+/test-results/
+/playwright-report/
+/playwright/.cache/
+*.test.js.snap
+*.test.ts.snap
+*.test.tsx.snap
 
 # next.js
-/.next/
-/out/
+**/.next/**
+**/out/**
 
 # production
-/build
+**/build/**
+**/dist/**
 
 # misc
 .DS_Store
 *.pem
+.AppleDouble
+.LSOverride
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
 
 # debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+lerna-debug.log*
 
 # env files (can opt-in for committing if needed)
 .env*
@@ -39,3 +53,60 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.vimrc
+.editorconfig.local
+
+# Cache directories
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Logs
+*.log
+logs/
+
+# Database files (development)
+*.db
+*.sqlite
+*.sqlite3
+/prisma/dev.db*
+
+# Temporary files
+.tmp/
+.temp/
+*.tmp
+*.temp
+
+# OS generated files
+.DS_Store?
+Icon?
+
+# Optional REPL history
+.node_repl_history
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional eslint cache
+.eslintcache

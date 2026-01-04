@@ -6,7 +6,7 @@ import { sessionService } from "@/lib/services/session";
 import bcrypt from "bcryptjs";
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(db) as any,
+  adapter: PrismaAdapter(db) as any, // Type compatibility issue with NextAuth adapter
   session: {
     strategy: "jwt",
     maxAge: 24 * 60 * 60, // 24 hours
@@ -46,7 +46,7 @@ export const authOptions: NextAuthOptions = {
         return {
           id: user.id,
           email: user.email,
-          role: user.role,
+          role: user.role as "ADMIN" | "USER",
         };
       },
     }),
@@ -69,7 +69,7 @@ export const authOptions: NextAuthOptions = {
           });
           
           if (freshUser) {
-            token.role = freshUser.role;
+            token.role = freshUser.role as "ADMIN" | "USER";
             token.email = freshUser.email;
             token.sessionCreated = Date.now();
             // Clear the invalidation flag

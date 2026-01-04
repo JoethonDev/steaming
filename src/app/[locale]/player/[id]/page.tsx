@@ -145,7 +145,7 @@ export default function PlayerPage() {
       {/* Video Content */}
       <div className="flex-grow overflow-y-auto custom-scrollbar p-6 lg:p-10 min-h-0">
         <div className="max-w-5xl mx-auto space-y-8">
-          <VideoPlayer manifestUrl={streamUrl} episode={activeEpisode} />
+          <VideoPlayer manifestUrl={streamUrl} episode={activeEpisode || undefined} />
 
           <div>
             <div className="flex items-start justify-between gap-6 mb-6">
@@ -155,8 +155,8 @@ export default function PlayerPage() {
                   {activeEpisode?.description || metadata?.description}
                 </p>
               </div>
-              <DownloadButton 
-                episode={activeEpisode}
+              <DownloadButton
+                episode={activeEpisode || undefined}
                 className="flex items-center gap-2 bg-white/5 border border-white/10 px-6 py-3 rounded-2xl font-bold hover:bg-white/10 transition-all shrink-0"
               />
             </div>
@@ -180,7 +180,7 @@ export default function PlayerPage() {
                   currentSeasonIndex === idx ? "bg-indigo-600 text-white" : "bg-white/5 text-slate-400 hover:text-white"
                 }`}
               >
-                S{s.season_number || s.seasonNumber || idx + 1}
+                S{s.season_number || idx + 1}
               </button>
             ))}
           </div>

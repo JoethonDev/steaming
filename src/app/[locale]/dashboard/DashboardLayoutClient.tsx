@@ -83,7 +83,7 @@ export default function DashboardLayoutClient({
             href={`/${locale}/dashboard/catalog`}
             active={isCatalogActive}
           />
-          {(session.user as any)?.role === "ADMIN" && (
+          {(session?.user as { role?: "ADMIN" | "USER" })?.role === "ADMIN" && (
             <NavItem
               icon={<Settings size={22} />}
               label={t('admin')}

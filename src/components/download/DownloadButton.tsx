@@ -7,7 +7,7 @@ import type { DownloadRequest } from "@/types";
 
 interface DownloadButtonProps {
   episode?: {
-    id: string;
+    id: string | number;
     name: string;
     asset_id: string;
   };

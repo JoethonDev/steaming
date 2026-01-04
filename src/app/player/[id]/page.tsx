@@ -1,31 +1,20 @@
+
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Loader2, Download, Layers, Play } from "lucide-react";
+import VideoPlayer from "@/components/player/VideoPlayer";
+import { trackEpisodeView } from "@/lib/actions/series";
+import type { Episode } from "@/types";
 
-export default function PlayerRedirect() {
-  const router = useRouter();
-  const { id } = useParams();
-
-  useEffect(() => {
-    // Redirect to default locale player
-    if (id) {
-      router.replace(`/ar/player/${id}`);
-    } else {
-      router.replace("/ar/dashboard");
-    }
-  }, [router, id]);
-
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-black">
-      <div className="text-center">
-        <Loader2 className="w-8 h-8 animate-spin text-indigo-500 mx-auto mb-4" />
-        <p className="text-slate-400">Redirecting to player...</p>
-      </div>
-    </div>
-  );
+interface Season {
+  id: string;
+  season_number?: number;
 }
+
+
+interface SeriesMetadata {
   id: string;
   name: string;
   description?: string;
@@ -43,31 +32,27 @@ export default function PlayerPage() {
   const [streamUrl, setStreamUrl] = useState("");
   const [loading, setLoading] = useState(true);
 
+
   // 1. Initial Metadata Load
   useEffect(() => {
     async function init() {
       try {
         const res = await fetch(`/api/series/${seriesId}`);
         const data = await res.json();
-        
         if (data.error) {
           console.error('API Error:', data.error);
           return;
         }
-        
         const series = data.series;
         if (!series) {
           console.error('No series data received');
           return;
         }
-        
         setMetadata(series);
         const seasonList = series.seasons || [];
         setSeasons(seasonList);
-        
         // Only fetch episodes after seasons are set and verified
         if (seasonList.length > 0 && seasonList[0]?.id) {
-          // Use setTimeout to ensure state is updated
           setTimeout(() => {
             fetchEpisodes(0, seasonList);
           }, 0);
@@ -78,40 +63,37 @@ export default function PlayerPage() {
         setLoading(false);
       }
     }
-    init();
+    if (seriesId) {
+      init();
+    }
   }, [seriesId]);
 
   // 2. Fetch Episodes for Season
   async function fetchEpisodes(index: number, seasonsArray?: Season[]) {
     setCurrentSeasonIndex(index);
     setEpisodes([]);
-    
     try {
-      // Use provided seasons array or fall back to state
       const currentSeasons = seasonsArray || seasons;
-      
-      // Check if seasons exist and index is valid
       if (!currentSeasons || currentSeasons.length === 0 || !currentSeasons[index]) {
         console.error('Invalid season data or index:', { currentSeasons, index });
         return;
       }
-      
       const season = currentSeasons[index];
       if (!season.id) {
         console.error('Season missing id property:', season);
         return;
       }
-      
       const seasonId = season.id;
       const res = await fetch(`/api/episodes?seriesId=${seriesId}&seasonId=${seasonId}`);
       const data = await res.json();
-      
       if (data.error) {
         console.error('Episodes API error:', data.error);
         return;
       }
-      
       setEpisodes(data);
+      if (data.length > 0) {
+        selectEpisode(data[0]);
+      }
     } catch (err) {
       console.error('Failed to fetch episodes:', err);
     }
@@ -124,19 +106,19 @@ export default function PlayerPage() {
     try {
       const res = await fetch("/api/stream/resolve", {
         method: "POST",
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ assetId: ep.asset_id }),
       });
       const data = await res.json();
       setStreamUrl(data.url);
-      
       // Background history tracking
-      trackEpisodeView({
+      await trackEpisodeView({
         episodeId: String(ep.id),
         assetId: ep.asset_id,
         name: ep.name
       });
     } catch (err) {
-      console.error(err);
+      console.error('Stream resolution failed:', err);
     }
   }
 
@@ -147,12 +129,11 @@ export default function PlayerPage() {
   );
 
   return (
-    <div className="flex-grow flex flex-col lg:flex-row overflow-hidden">
+    <div className="flex-grow flex flex-col lg:flex-row overflow-hidden h-full">
       {/* Video Content */}
-      <div className="flex-grow overflow-y-auto custom-scrollbar p-6 lg:p-10">
+      <div className="flex-grow overflow-y-auto custom-scrollbar p-6 lg:p-10 min-h-0">
         <div className="max-w-5xl mx-auto space-y-8">
-          <VideoPlayer manifestUrl={streamUrl} />
-
+          <VideoPlayer manifestUrl={streamUrl} episode={activeEpisode ?? undefined} />
           <div>
             <div className="flex items-start justify-between gap-6 mb-6">
               <div className="space-y-2">
@@ -171,12 +152,11 @@ export default function PlayerPage() {
       </div>
 
       {/* Sidebar: Queue */}
-      <aside className="w-full lg:w-[400px] border-l border-white/10 bg-[#08090c] flex flex-col">
-        <div className="p-6 border-bottom border-white/5">
+      <aside className="w-full lg:w-[400px] lg:max-h-screen border-l border-white/10 bg-[#08090c] flex flex-col">
+        <div className="p-6 border-bottom border-white/5 flex-shrink-0">
           <h2 className="text-xs font-black uppercase tracking-[0.2em] text-indigo-400 flex items-center gap-2 mb-6">
             <Layers size={14} /> Content Queue
           </h2>
-
           <div className="flex flex-wrap gap-2">
             {seasons.map((s, idx) => (
               <button
@@ -191,8 +171,7 @@ export default function PlayerPage() {
             ))}
           </div>
         </div>
-
-        <div className="flex-grow overflow-y-auto custom-scrollbar p-4 space-y-3">
+        <div className="flex-grow overflow-y-auto custom-scrollbar p-4 space-y-3 min-h-0">
           {episodes.map((ep) => (
             <button
               key={ep.id}
@@ -224,3 +203,5 @@ export default function PlayerPage() {
     </div>
   );
 }
+
+

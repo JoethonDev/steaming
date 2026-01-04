@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { watchitService } from "@/lib/services/watchit";
@@ -6,8 +7,8 @@ import { db } from "@/lib/db";
 import { extractBestImageUrl } from "@/lib/utils/image";
 
 export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session) {
@@ -15,7 +16,7 @@ export async function GET(
   }
 
   try {
-    const { id: seriesId } = await params;
+    const { id: seriesId } = await context.params;
 
     // Fetch fresh metadata from Watchit first
     const freshData = await watchitService.fetchSeriesMetadata(seriesId);
@@ -56,10 +57,10 @@ export async function GET(
         ...freshData, // Merge fresh data for seasons etc.
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Series API Error:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to fetch series" },
+      { error: error instanceof Error ? error.message : "Failed to fetch series" },
       { status: 500 }
     );
   }

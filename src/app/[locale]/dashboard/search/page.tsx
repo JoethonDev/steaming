@@ -164,7 +164,7 @@ export default function SearchResultsPage({ params }: SearchPageProps) {
                         <div className="aspect-[2/3] relative overflow-hidden">
                           {posterUrl ? (
                             <img
-                              src={getProxiedImageUrl(posterUrl)}
+                              src={getProxiedImageUrl(posterUrl) || ''}
                               alt={series.name}
                               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                             />

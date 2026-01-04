@@ -1,26 +1,15 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus, Film, ArrowRight, Search, TrendingUp, Clock, Play } from "lucide-react";
+import Link from "next/link";
+import { useSession } from "next-auth/react";
+import { getUserHistory, analyzeSeries } from "@/lib/actions/series";
+import type { UserHistoryResponse } from "@/types";
+import { getProxiedImageUrl } from "@/lib/utils/image";
 
-export default function DashboardRedirect() {
-  const router = useRouter();
-
-  useEffect(() => {
-    // Redirect to default locale dashboard
-    router.replace("/ar/dashboard");
-  }, [router]);
-
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-[#030406]">
-      <div className="text-center">
-        <Loader2 className="w-8 h-8 animate-spin text-indigo-500 mx-auto mb-4" />
-        <p className="text-slate-400">Redirecting to dashboard...</p>
-      </div>
-    </div>
-  );
-}
+export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [history, setHistory] = useState<UserHistoryResponse | null>(null);
@@ -35,10 +24,10 @@ export default function DashboardRedirect() {
   const [analyzeMessage, setAnalyzeMessage] = useState("");
 
   useEffect(() => {
-    if (status === "unauthenticated") {
+    if (!session && status !== "loading") {
       router.push("/login");
     }
-  }, [status, router]);
+  }, [session, status, router]);
 
   useEffect(() => {
     if (session) {
@@ -132,7 +121,7 @@ export default function DashboardRedirect() {
               Your streaming command center awaits.
             </p>
           </div>
-          {(session?.user as any)?.role === "ADMIN" && (
+          {(session?.user as { role?: "ADMIN" | "USER" })?.role === "ADMIN" && (
             <Link
               href="/admin"
               className="bg-indigo-600 hover:bg-indigo-500 px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2"

@@ -2,7 +2,7 @@
 
 import { useRouter, usePathname } from 'next/navigation';
 import { Globe } from 'lucide-react';
-import { i18n, type Locale } from '@/i18n/config';
+import { type Locale } from '@/i18n/config';
 
 interface LanguageToggleProps {
   currentLocale: Locale;
